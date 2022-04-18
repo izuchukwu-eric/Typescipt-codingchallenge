@@ -9,3 +9,7 @@
   border: 2px solid gray;
   border-radius: 5px;
 }
+
+.logoutBtn {
+  margin-left: 60rem;
+}
