@@ -79,11 +79,11 @@ const Login = ({ getStudents, students }: Props) => {
                     className="searchBarInput"
                     onChange={(e) => onChange(e)}   
                   />
-                <button onClick={onSubmit}>Login</button>
+                <button onClick={onSubmit} id="loginBtn">Login</button>
               </>
              : 
               <>
-              <button onClick={logout}>Logout</button>
+              <button onClick={logout} id="logoutBtn">Logout</button>
               {
                 isStudentLoggedIn?.Classes?.map((classId: any) => {
                   return (<Results classId={classId}></Results>)
