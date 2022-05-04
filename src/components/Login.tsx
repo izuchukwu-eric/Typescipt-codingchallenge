@@ -71,7 +71,7 @@ const Login = ({ getStudents, students }: Props) => {
           <div className="loginDiv">
             {!isStudentLoggedIn && isStudentLoggedIn !== undefined ? 
               <>
-                <span>Student Name:</span>
+                <span className="student-name">Student Name:</span>
                   <input
                     type="text"
                     name="name"

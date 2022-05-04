@@ -20,6 +20,7 @@
   font-weight: bold;
   max-height: inherit;
   max-width: inherit;
+  text-align: start;
 }
 .class {
   max-height: inherit;
@@ -30,6 +31,7 @@
   font-weight: bold;
   max-height: inherit;
   max-width: inherit;
+  text-align: start;
 }
 .student-name {
   display: inline-block;
