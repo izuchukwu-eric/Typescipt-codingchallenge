@@ -1,48 +1,55 @@
-import React, { Fragment } from "react";
+import React, { useEffect } from "react";
 import "./Results.css";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
-import Spinner from "./Spinner";
+import {getClassesByID} from "../actions/index"
 
 interface Props {
-  profile: any;
-  loading: any;
+  getClassesByID: Function
+  classId: string
+  classes: any
+  students: any
 }
 
-const Results = ({ profile, loading }: Props) => {
+const Results = ({ classId, students, classes, getClassesByID }: Props) => {
+
+  const dispatch = useDispatch();
+    useEffect(() => {
+      getClassesByID(classId);
+    }, [dispatch]);
+
+
+  const currentClass = classes.find((eachClass: { id: string; })=>{
+      return eachClass.id === classId
+  })
+  const currentStudents = currentClass?.fields.Students
   return (
-    <Fragment>
-      <input className="logoutBtn" type="submit" value="Logout" />
-      {loading ? (
-        <Spinner />
-      ) : (
-        profile.map((profile: any) => (
-          <div className="container">
-            <p>
-              <strong>Name</strong>
-              <br></br>
-              {profile.Name}
-            </p>
-            <p>
-              <strong>Students</strong>
-              <br></br>
-              {profile.Students}
-            </p>
-          </div>
-        ))
-      )}
-    </Fragment>
+    <div>
+      <div className="card">
+          <div className="name">Name</div>
+          <div className="class">{currentClass?.fields.Name}</div>
+          <div className="student">Students</div>
+          <div>{
+              currentStudents?.map((eachStudent: string, key: any) => {
+                  let currentStudent = students?.find((stu: { id: string; })=> stu.id === eachStudent)
+                  return currentStudent ? <div key={key} className="student-name">{currentStudent.fields.Name}</div> : ""
+              })
+          }</div>
+      </div>
+    </div>
   );
-};
+}
 
 Results.propTypes = {
-  profile: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired,
+  getClassesByID: PropTypes.func.isRequired,
+  classes: PropTypes.array.isRequired,
+  students: PropTypes.array.isRequired
+
 };
 
 const mapStateToProps = (state: any) => ({
-  profile: state.auth.profile,
-  loading: state.auth.loading,
+ classes: state.classes.classes,
+ students: state.students.students
 });
 
-export default connect(mapStateToProps)(Results);
+export default connect(mapStateToProps, {getClassesByID})(Results);

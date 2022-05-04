@@ -1,63 +1,108 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import "./Login.css";
 import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { login } from "../actions/auth";
+import { useDispatch, connect } from "react-redux";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { getStudents } from "../actions/index";
 import Results from "./Results";
 
 interface Props {
-  login: Function;
-  auth: any;
+  getStudents: Function;
+  students: any;
 }
 
-const Login = ({ login, auth }: Props) => {
+const Login = ({ getStudents, students }: Props) => {
+  const [isStudentLoggedIn, setStudentLogin] = useLocalStorage<any>('name', {})
+  const [studentRecord] = useState<Map<string, any>>(new Map())
   const [formData, setFormData] = useState({
     name: "",
   });
 
+  const dispatch = useDispatch();
+  useEffect(() => {
+    getStudents();
+  }, [dispatch]);
+
   const { name } = formData;
 
+  let studentListwithID: any = {}
+
+
+  students.map((eachRecord: any) => {
+    /** username is case sensitive so we convert to lowercase */
+    studentListwithID[eachRecord.id] = {
+      id: eachRecord.id,
+      ...eachRecord.fields
+    }
+
+    return studentRecord.set(eachRecord?.fields?.Name?.toLowerCase(), {
+      id: eachRecord.id,
+      ...eachRecord.fields
+    })
+  })
+
+  /**onChange function for the form */
   const onChange = (e: any) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const onSubmit = async (e: any) => {
-    e.preventDefault();
-    login(name);
-    console.log(name);
+  /**logout function to logout student */
+  const logout = () => {
+      setStudentLogin("")
+    }
+
+  /**onSubmit function to login the student */  
+  const onSubmit = () => {
+    if(name) {
+      const getStudentName = studentRecord.get(name?.toLowerCase())
+      if(getStudentName) {
+        setStudentLogin(getStudentName)
+      }
+      else {
+        alert("Student doesn't exit")
+      }
+    }
+    else {
+      alert("Please enter a valid student name")
+    }
   };
 
   return (
-    <Fragment>
-      {auth.isAuthenticated ? (
-        <Results />
-      ) : (
         <Fragment>
           <div className="loginDiv">
-            <span>Student Name:</span>
-            <form onSubmit={(e) => onSubmit(e)}>
-              <input
-                type="text"
-                name="name"
-                value={name}
-                className="searchBarInput"
-                onChange={(e) => onChange(e)}
-              />
-              <input type="submit" value="Login" />
-            </form>
+            {!isStudentLoggedIn && isStudentLoggedIn !== undefined ? 
+              <>
+                <span>Student Name:</span>
+                  <input
+                    type="text"
+                    name="name"
+                    value={name}
+                    className="searchBarInput"
+                    onChange={(e) => onChange(e)}   
+                  />
+                <button onClick={onSubmit}>Login</button>
+              </>
+             : 
+              <>
+              <button onClick={logout}>Logout</button>
+              {
+                isStudentLoggedIn?.Classes?.map((classId: any) => {
+                  return (<Results classId={classId}></Results>)
+                })
+              }
+              </>
+            }
           </div>
         </Fragment>
-      )}
-    </Fragment>
   );
 };
 
 Login.propTypes = {
-  login: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired,
+  getStudents: PropTypes.func.isRequired,
+  students: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state: any) => ({
-  auth: state.auth,
+  students: state.students.students,
 });
 
-export default connect(mapStateToProps, { login })(Login);
+export default connect(mapStateToProps, { getStudents })(Login);
